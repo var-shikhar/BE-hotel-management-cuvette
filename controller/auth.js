@@ -29,6 +29,7 @@ import Client from "../modal/client-modal.js";
 import Order from "../modal/order-modal.js";
 import Table from "../modal/table-modal.js";
 import RouteCode from "../util/httpStatus.js";
+import TBController from './table.js'
 
 configDotenv();
 
@@ -137,7 +138,7 @@ const getDashboardAnalytics = async (req, res, next) => {
         let foundTable = await Table.findOne({ date: { $gte: startOfDay, $lte: endOfDay } });
 
         if (!foundTable) {
-            const newTableID = await handleCurrentTable();
+            const newTableID = await TBController.handleCurrentTable();
             if (!newTableID) return next(new CustomError('Unable to initialize table for today', RouteCode.EXPECTATION_FAILED.statusCode));
 
             foundTable = await Table.findById(newTableID);

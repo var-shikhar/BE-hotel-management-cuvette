@@ -1,8 +1,8 @@
-# HUBLY - Backend
+# Hotel-management - Backend
 
 ## 🚀 Overview
 
-The backend of Hubly powers the core logic behind the chatbot interface, admin dashboard, team management, and analytics. Built with Node.js and Express, it facilitates secure user authentication, message logging, chatbot customization, and team-level operations — all backed by MongoDB for persistence.
+The backend of Hotel powers the core logic behind the chatbot interface, admin dashboard, team management, and analytics. Built with Node.js and Express, it facilitates secure user authentication, message logging, chatbot customization, and team-level operations — all backed by MongoDB for persistence.
 
 ## ✨ Features
 

@@ -77,10 +77,10 @@ const getAllOrders = async (req, res, next) => {
                 orderType: item.orderType,
                 status: item.status,
                 pickupStatus: item.pickupStatus ?? null,
+                instructions: item.instructions,
                 items: item.items.map(i => ({
                     itemName: i.itemId?.itemName || '',
                     itemQuantity: i.quantity,
-                    itemInstructions: i.instructions,
                 })),
             });
         }
@@ -131,7 +131,9 @@ const postNewBooking = async (req, res, next) => {
         // Step 3: Calculate time fields
         const assignedAtDate = assignedAt instanceof Date ? assignedAt : new Date(assignedAt);
         const completedAt = new Date(assignedAtDate.getTime() + totalPreparationTime * 60 * 1000);
-        const remainingTime = Math.max(completedAt - new Date(), 0);
+        const remainingTimeInSeconds = Math.max(completedAt - new Date(), 0);
+        const remainingTimeInMinutes = Math.floor(remainingTimeInSeconds / 1000 / 60);
+
         const subTotal = items?.reduce((acc, i) => {
             acc += (i.price * i.quantity) + i.tax
             return acc;
@@ -155,7 +157,7 @@ const postNewBooking = async (req, res, next) => {
             totalPreparationTime,
             instructions: cookingInstructions,
             completedAt,
-            remainingTime,
+            remainingTime: remainingTimeInMinutes,
             status,
             tableID: tableID,
             tableDataID: bookedTable,
@@ -313,7 +315,9 @@ async function calculateRemainingTime(next) {
                 foundOrders.map(async (order) => {
                     const completedAt = new Date(order.completedAt);
                     const remainingTime = Math.max(completedAt - now, 0);
-                    order.remainingTime = remainingTime;
+                    const remainingTimeInMinutes = Math.floor(remainingTime / 1000 / 60);
+
+                    order.remainingTime = remainingTimeInMinutes;
 
                     // Auto-progress if assignedAt has passed and status is still Pending
                     if (order.status === 'Pending' && order.assignedAt && order.assignedAt <= now) {
@@ -321,7 +325,7 @@ async function calculateRemainingTime(next) {
                     }
 
                     // Mark as Completed and free the table if time is over
-                    if (remainingTime <= 0 && order.status !== 'Completed') {
+                    if (remainingTimeInMinutes <= 0 && order.status !== 'Completed') {
                         order.status = 'Completed';
 
                         // Mark table as available again
