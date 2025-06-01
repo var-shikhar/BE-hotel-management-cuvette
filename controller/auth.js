@@ -22,90 +22,17 @@
 |
 */
 
-import bcrypt from "bcryptjs";
 import { configDotenv } from "dotenv";
 import { CustomError } from "../middleware/errorMiddleware.js";
-import User from "../modal/user-modal.js";
-import RouteCode from "../util/httpStatus.js";
-import { generateJWTToken } from "../util/jwtToken.js";
 import Chef from "../modal/chef-modal.js";
-import Order from "../modal/order-modal.js";
 import Client from "../modal/client-modal.js";
+import Order from "../modal/order-modal.js";
 import Table from "../modal/table-modal.js";
+import RouteCode from "../util/httpStatus.js";
 
 configDotenv();
 
 const { NODE_ENV } = process.env;
-
-// Login Controller
-const postLogin = async (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email || !password) return next(new CustomError("Invalid credentials", RouteCode.CONFLICT.statusCode));
-    try {
-        const foundUser = await User.findOne({ email });
-        if (!foundUser) return next(new CustomError("Invalid credentials", RouteCode.CONFLICT.statusCode));
-
-        // Check if the password is correct
-        const isValidPassword = await bcrypt.compare(password, foundUser.password);
-        if (!isValidPassword) return next(new CustomError("Invalid credentials, email or password is incorrect", RouteCode.CONFLICT.statusCode));
-
-        // Generate JWT tokens
-        const accessToken = generateJWTToken(foundUser, 'access', '2h');
-        const refreshToken = generateJWTToken(foundUser, 'refresh', '7d');
-
-        // Update refresh token in DB
-        foundUser.refresh_token = refreshToken;
-        await foundUser.save();
-        const isProduction = NODE_ENV === "production";
-
-        res.cookie("access_token", accessToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "None" : "Lax",
-            path: "/",
-        });
-
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "None" : "Lax",
-            path: "/",
-        });
-
-
-        // Send successful login response to the client
-        const userDetail = {
-            id: foundUser._id,
-            name: foundUser.firstName + ' ' + foundUser.lastName,
-            email: foundUser.email,
-        }
-        return res.status(RouteCode.SUCCESS.statusCode).json(userDetail);
-    } catch (error) {
-        return next(error);
-    }
-};
-// Logout Controller
-const getLogout = async (req, res, next) => {
-    try {
-        // Get the refresh token from the cookies
-        const refreshToken = req.cookies.refresh_token;
-        if (!refreshToken) return next(new CustomError("Something went wrong", RouteCode.BAD_REQUEST.statusCode));
-
-        const foundUser = await User.findOne({ refresh_token: refreshToken });
-        if (!foundUser) return next(new CustomError("Something went wrong", RouteCode.BAD_REQUEST.statusCode));
-
-        // Remove refresh token in DB
-        foundUser.refresh_token = null;
-        await foundUser.save();
-
-        // Clear cookies
-        res.clearCookie("access_token");
-        res.clearCookie("refresh_token");
-        res.status(RouteCode.SUCCESS.statusCode).json({ message: "User has Logged out successfully" });
-    } catch (error) {
-        return next(error);
-    }
-};
 
 // Get Chef List
 const getChefList = async (req, res, next) => {

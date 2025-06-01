@@ -25,14 +25,12 @@
 
 import { configDotenv } from 'dotenv';
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import CONSTANT from '../constant/constant.js';
+import TABLE from '../controller/table.js';
 import Category from '../modal/category-modal.js';
 import Chef from '../modal/chef-modal.js';
 import Menu from '../modal/menu-modal.js';
 import Table from '../modal/table-modal.js';
-import User from '../modal/user-modal.js';
-import TABLE from '../controller/table.js';
 
 configDotenv();
 const { MONGO_URI, SALT } = process.env;
@@ -42,8 +40,6 @@ const { CATEGORY_DATA, CHEF_DATA, MENU_ITEMS } = CONSTANT;
 const connectDB = async () => {
     try {
         await mongoose.connect(MONGO_URI);
-        // Check if Chef Data exists
-        const userCount = await User.countDocuments();
         const chefCount = await Chef.countDocuments();
         const categoryCount = await Category.countDocuments();
         const menuCount = await Menu.countDocuments();
@@ -62,20 +58,6 @@ const connectDB = async () => {
             }).filter(item => item !== null); // remove null entries
 
             await Menu.insertMany(menuItemsWithCategoryIds);
-        }
-
-        if (userCount === 0) {
-            const hashedPassword = await bcrypt.hash('Admin@1234', Number(SALT));
-            const newUser = new User({
-                firstName: 'Shikhar',
-                lastName: 'Varshney',
-                email: 'admin@cuvette.com',
-                contact: 7500104052,
-                password: hashedPassword
-            })
-
-            await newUser.save();
-            console.log('Admin user created');
         }
 
         mongoose.connection.emit('connected');

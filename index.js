@@ -44,11 +44,9 @@ app.use(
 );
 
 import errorMiddleware from "./middleware/errorMiddleware.js";
-import authRoutes from "./routes/auth.js";
 import adminRoutes from './routes/admin.js';
 
 // Route handlers
-app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes)
 
 // Error middleware should be the last middleware
