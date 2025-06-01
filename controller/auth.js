@@ -91,8 +91,13 @@ const deleteChef = async (req, res, next) => {
 
 // Get Analytics
 const getDashboardAnalytics = async (req, res, next) => {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
     try {
-        const [totalChef, totalOrder, orderData, totalClient, chefList, tableData] = await Promise.all([
+        const [totalChef, totalOrder, orderData, totalClient, chefList] = await Promise.all([
             Chef.countDocuments(),
             Order.countDocuments(),
             Order.aggregate([
@@ -127,29 +132,26 @@ const getDashboardAnalytics = async (req, res, next) => {
                     }
                 }
             ]),
-            Table.aggregate([
-                {
-                    $match: {
-                        date: {
-                            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                            $lte: new Date(new Date().setHours(23, 59, 59, 999))
-                        }
-                    }
-                },
-                {
-                    $unwind: "$tableData"
-                },
-                {
-                    $project: {
-                        tableDataID: "$tableData._id",
-                        tableName: "$tableData.tableName",
-                        tableNo: "$tableData.tableNo",
-                        totalChairs: "$tableData.totalChairs",
-                        isAvailable: "$tableData.isAvailable"
-                    }
-                }
-            ])
         ]);
+
+        let foundTable = await Table.findOne({ date: { $gte: startOfDay, $lte: endOfDay } });
+
+        if (!foundTable) {
+            const newTableID = await handleCurrentTable();
+            if (!newTableID) return next(new CustomError('Unable to initialize table for today', RouteCode.EXPECTATION_FAILED.statusCode));
+
+            foundTable = await Table.findById(newTableID);
+            if (!foundTable) return next(new CustomError('Table document creation failed', RouteCode.EXPECTATION_FAILED.statusCode));
+        }
+
+
+        const tables = (foundTable.tableData || []).map(table => ({
+            tableDataID: table._id,
+            tableName: table.tableName,
+            tableNo: table.tableNo,
+            totalChairs: table.totalChairs,
+            isAvailable: table.isAvailable
+        }));
 
         const totalRevenue = orderData[0]?.totalRevenue ?? 0;
         const finalData = {
@@ -157,7 +159,7 @@ const getDashboardAnalytics = async (req, res, next) => {
             totalRevenue,
             totalOrder,
             totalClient,
-            tableData,
+            tableData: tables,
             chefList,
         };
 
