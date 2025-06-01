@@ -168,7 +168,7 @@ const getDashboardAnalytics = async (req, res, next) => {
 }
 
 export default {
-    getLogout, postLogin, getChefList,
+    getChefList,
     postChef, deleteChef, getDashboardAnalytics
 
 };
