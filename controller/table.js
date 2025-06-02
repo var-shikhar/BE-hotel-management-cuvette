@@ -1,3 +1,26 @@
+/*
+|------------------------------------------------------------------------------
+| Table Management Controllers
+|------------------------------------------------------------------------------
+|
+| This file defines controllers for managing daily table records in the system.
+| It includes functionality for creating, updating, retrieving, and deleting 
+| table entries, while ensuring table numbers remain unique and sequential.
+|
+| Available Controllers:
+|
+| - `handleCurrentTable`: Initializes today's table document with default data (10 tables).
+| - `getAllTables`: Retrieves today's tables, creates them if they don't exist.
+| - `postCreateTable`: Adds a new table to today's document after checking for conflicts.
+| - `putTableDetails`: Updates table details such as name, number, and chair count.
+| - `deleteTable`: Deletes a specific table entry and reorders remaining table numbers.
+|
+| All controllers include input validation and error handling using `CustomError`,
+| and respond using appropriate HTTP status codes via `RouteCode`.
+|
+*/
+
+
 import { CustomError } from "../middleware/errorMiddleware.js";
 import Order from "../modal/order-modal.js";
 import Table from "../modal/table-modal.js";

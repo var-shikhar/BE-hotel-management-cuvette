@@ -1,35 +1,30 @@
-# Hotel-management - Backend
+# Chef Management & Dashboard Analytics - Backend
 
 ## 🚀 Overview
 
-The backend of Hotel powers the core logic behind the chatbot interface, admin dashboard, team management, and analytics. Built with Node.js and Express, it facilitates secure user authentication, message logging, chatbot customization, and team-level operations — all backed by MongoDB for persistence.
+This backend powers the core logic for managing chefs and delivering comprehensive dashboard analytics. Built with Node.js and Express, it handles CRUD operations for chefs, ensures data validation, and aggregates key business metrics such as orders, revenue, and table availability. Data persistence is managed via MongoDB.
 
 ## ✨ Features
 
-### 💬 Chat & Message Management
+### 🍳 Chef Management
 
-- Stores and retrieves chat messages between end-users and admins.
-- Tracks missed chats and timestamps for response analytics.
-- Provides REST APIs for message history and user sessions.
+- Retrieve the full list of chefs with their roles and order counts.
+- Add new chefs with uniqueness validation on names.
+- Delete chefs with safeguards preventing removal of admin chefs.
 
-### 🧑‍💼 Admin & Team Management
+### 📊 Dashboard Analytics
 
-- Handles authentication for admins and their child (team) accounts.
-- Supports team-level management of chatbot settings and analytics.
+- Aggregate analytics including:
+  - Total chefs, clients, and orders
+  - Total revenue generated
+  - Number of tables available and booked for the current day
+- Provides valuable insights for restaurant management.
 
-### 🎛️ Chatbot Customization
+### ⚙️ Error Handling & Validation
 
-- Stores and manages customizable fields:
-  - Welcome messages
-  - Placeholder texts
-  - Submit button label
-  - Chat widget colors
-
-### 📊 Analytics Tracking
-
-- Captures metrics for:
-  - Missed chats
-  - First response time
+- Uses a custom error class (`CustomError`) for consistent error reporting.
+- Standardized HTTP status codes returned via `RouteCode`.
+- Input validation for secure and reliable API operations.
 
 ## 🧱 Tech Stack
 
@@ -41,26 +36,26 @@ The backend of Hotel powers the core logic behind the chatbot interface, admin d
 
 ### Additional Tools
 
-- **Winston** - For error logging and operational logs.
-- **JWT** - For secure authentication and session management.
-- **bcrypt** - For secure password hashing.
+- **Mongoose** - ODM for MongoDB interactions.
+- **CustomError** - Custom error handling utility.
 
 ## 📦 Installation
 
-Follow these steps to set up the backend locally:
+To set up and run the backend locally, follow these steps:
 
 ```sh
 # Clone the repository
-git clone https://github.com/var-shikhar/Hubly-BE-Cuvette.git
-cd Hubly-BE-Cuvette
+git clone https://github.com/var-shikhar/BE-hotel-management-cuvette.git
+cd BE-hotel-management-cuvette
 
 # Install dependencies
 npm install
 
-# Copy environment variables template and configure settings
+# Configure environment variables
 cp .env.example .env
+# Edit .env file to add your config values
 
-# Start the backend server
+# Start the development server
 npm run dev
 ```
 
@@ -75,12 +70,6 @@ npm run dev
 - /models – Mongoose schemas
 - /middleware – Authentication, error handling, etc.
 - /utils – Helper functions and logging utilities
-
-### 🔐 Authentication & Security
-
-- JWT-based access and refresh tokens for secure API access.
-- Passwords hashed with bcrypt and a predefined salt.
-- Refresh token management for extended sessions.
 
 ### 📄 Logging System
 

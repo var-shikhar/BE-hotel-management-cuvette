@@ -1,3 +1,31 @@
+/*
+|--------------------------------------------------------------------------
+| Order Management Controllers
+|--------------------------------------------------------------------------
+|
+| This file contains controllers for handling order-related operations.
+| These controllers manage the creation, retrieval, and status updates of orders,
+| as well as table bookings and order number generation.
+|
+| Available Controllers:
+|
+| - `getMenuList`: Retrieves the list of all categories and menu items.
+| - `getAllOrders`: Fetches all orders along with associated client and table data,
+|   and formats time for display.
+| - `postNewBooking`: Handles new table booking with menu items, creates clients if needed,
+|   assigns chefs, and calculates subtotals.
+| - `putOrderStatus`: Updates the status of a specific order by ID.
+| - `generateOrderNumber`: Dynamically generates an order number based on today's date
+|   and existing order count.
+| - `bookTable`: Reserves a table for the selected time slot after checking availability.
+| - `findAvailableChef`: Finds the chef with the least assigned workload for today.
+|
+| All controllers use the `CustomError` class for structured error handling and 
+| return consistent HTTP responses using `RouteCode`.
+|
+*/
+
+
 import { CustomError } from "../middleware/errorMiddleware.js";
 import Category from "../modal/category-modal.js";
 import Chef from "../modal/chef-modal.js";
@@ -180,6 +208,18 @@ const putOrderStatus = async (req, res, next) => {
 
         foundOrder.status = 'Completed';
         await foundOrder.save();
+
+        if (foundOrder.tableID) {
+            const tableDoc = await Table.findById(foundOrder.tableID);
+            if (tableDoc) {
+                const targetTable = tableDoc.tableData.find(t => t._id.equals(foundOrder.tableDataID));
+                if (targetTable) {
+                    targetTable.isAvailable = true;
+                    await tableDoc.save();
+                }
+            }
+        }
+
 
         await calculateRemainingTime(next)
         return res.status(RouteCode.SUCCESS.statusCode).json({ message: 'Order has completed successfully!' });

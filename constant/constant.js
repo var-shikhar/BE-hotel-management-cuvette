@@ -1,3 +1,24 @@
+/*
+|--------------------------------------------------------------------------
+| Static Seed Data for Chefs, Categories, and Menu Items
+|--------------------------------------------------------------------------
+|
+| This file provides predefined static data used throughout the application
+| for initial rendering and seeding purposes. It includes mock data for chefs,
+| food categories, and menu items.
+|
+| Available Data:
+|
+| - `CHEF_DATA`: List of chefs including their names and admin status.
+| - `CATEGORY_DATA`: Food categories with display names and corresponding icons.
+| - `MENU_ITEMS`: Menu items with detailed information including name, price,
+|   image, description, tax, preparation time, and associated category.
+|
+| This data can be used for UI rendering, default database seeding, or testing.
+| All data is exported as a single default object for easy access.
+|
+*/
+
 const CHEF_DATA = [
     { chefName: 'Manesh', isAdmin: true },
     { chefName: 'Pritam', isAdmin: false },
